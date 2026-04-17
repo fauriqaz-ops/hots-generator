@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HOTS Generator — Soal Tingkat Tinggi</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d0d0f;
+  --bg2: #141418;
+  --bg3: #1c1c22;
+  --bg4: #24242c;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0eff4;
+  --text2: #9998a8;
+  --text3: #5f5e70;
+  --accent: #7c6af7;
+  --accent2: #a094ff;
+  --accent-glow: rgba(124,106,247,0.18);
+  --green: #3ecf8e;
+  --green-bg: rgba(62,207,142,0.1);
+  --amber: #f59e0b;
+  --amber-bg: rgba(245,158,11,0.1);
+  --red: #f87171;
+  --red-bg: rgba(248,113,113,0.1);
+  --teal: #2dd4bf;
+  --teal-bg: rgba(45,212,191,0.1);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 18px;
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+/* ── Layout ── */
+.app-layout { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
+
+/* ── Sidebar ── */
+.sidebar {
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.sidebar-header { padding: 28px 24px 20px; border-bottom: 1px solid var(--border); }
+.logo { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.logo-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), #c084fc);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.logo-text { font-family: var(--font-display); font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
+.logo-sub { font-size: 12px; color: var(--text3); }
+
+.nav { padding: 16px 12px; flex: 1; }
+.nav-section { margin-bottom: 24px; }
+.nav-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; padding: 0 12px; margin-bottom: 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: var(--radius-sm); cursor: pointer;
+  font-size: 13.5px; color: var(--text2); transition: all 0.15s;
+  border: 1px solid transparent;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active { background: var(--accent-glow); color: var(--accent2); border-color: rgba(124,106,247,0.25); }
+.nav-item .nav-icon { font-size: 15px; flex-shrink: 0; }
+.nav-badge { margin-left: auto; font-size: 10px; background: var(--accent); color: white; padding: 2px 7px; border-radius: 20px; font-weight: 600; }
+
+.sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+.version-tag { font-size: 11px; color: var(--text3); }
+
+/* ── Main content ── */
+.main { display: flex; flex-direction: column; min-height: 100vh; overflow: hidden; }
+
+.topbar {
+  padding: 20px 36px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg); position: sticky; top: 0; z-index: 10;
+}
+.page-title { font-family: var(--font-display); font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+.page-sub { font-size: 13px; color: var(--text3); margin-top: 2px; }
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+/* ── Screens ── */
+.screen { display: none; padding: 32px 36px; flex: 1; animation: fadeIn 0.2s ease; }
+.screen.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px;
+}
+.card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.card-num {
+  width: 26px; height: 26px; border-radius: 50%; background: var(--accent-glow);
+  border: 1px solid rgba(124,106,247,0.3); display: flex; align-items: center;
+  justify-content: center; font-size: 12px; font-weight: 600; color: var(--accent2); flex-shrink: 0;
+}
+.card-title-text { font-family: var(--font-display); font-size: 14px; font-weight: 600; }
+.card-desc { font-size: 12px; color: var(--text3); }
+
+/* ── Forms ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-full { grid-column: 1 / -1; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+label { font-size: 12px; font-weight: 500; color: var(--text2); letter-spacing: 0.02em; }
+input[type="text"], input[type="number"], select, textarea {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 13px;
+  color: var(--text); font-family: var(--font-body); font-size: 14px;
+  width: 100%; transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none; appearance: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow);
+}
+input::placeholder, textarea::placeholder { color: var(--text3); }
+textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239998a8' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer; }
+select option { background: var(--bg3); }
+
+/* ── Bloom selector ── */
+.bloom-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.bloom-card {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px; cursor: pointer; transition: all 0.15s;
+  position: relative; overflow: hidden;
+}
+.bloom-card::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.15s; }
+.bloom-card:hover { border-color: var(--border2); background: var(--bg3); }
+.bloom-card.selected.c4 { border-color: rgba(45,212,191,0.5); background: var(--teal-bg); }
+.bloom-card.selected.c5 { border-color: rgba(245,158,11,0.5); background: var(--amber-bg); }
+.bloom-card.selected.c6 { border-color: rgba(124,106,247,0.5); background: var(--accent-glow); }
+.bloom-icon { font-size: 20px; margin-bottom: 8px; }
+.bloom-level { font-family: var(--font-display); font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+.bloom-card.selected.c4 .bloom-level { color: var(--teal); }
+.bloom-card.selected.c5 .bloom-level { color: var(--amber); }
+.bloom-card.selected.c6 .bloom-level { color: var(--accent2); }
+.bloom-kw { font-size: 11px; color: var(--text3); line-height: 1.5; }
+.bloom-card.selected .bloom-kw { color: var(--text2); }
+.bloom-check { position: absolute; top: 10px; right: 10px; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 8px; }
+.bloom-card.selected .bloom-check { background: var(--accent); border-color: var(--accent); color: white; }
+
+/* ── Jenis soal ── */
+.jenis-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.jenis-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s;
+  font-size: 13px; color: var(--text2); user-select: none;
+}
+.jenis-item:hover { background: var(--bg3); color: var(--text); }
+.jenis-item.selected { border-color: rgba(124,106,247,0.5); background: var(--accent-glow); color: var(--accent2); }
+.jenis-cb { width: 15px; height: 15px; border-radius: 4px; border: 1.5px solid var(--border2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; transition: all 0.1s; }
+.jenis-item.selected .jenis-cb { background: var(--accent); border-color: var(--accent); color: white; }
+.jenis-icon { margin-left: auto; font-size: 14px; opacity: 0.5; }
+
+/* ── Number stepper ── */
+.stepper { display: flex; align-items: center; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; width: fit-content; }
+.step-btn { width: 38px; height: 38px; background: var(--bg3); border: none; color: var(--text2); font-size: 18px; cursor: pointer; transition: all 0.1s; font-family: var(--font-body); display: flex; align-items: center; justify-content: center; }
+.step-btn:hover { background: var(--bg4); color: var(--text); }
+.step-val { width: 52px; text-align: center; font-family: var(--font-display); font-size: 17px; font-weight: 600; background: var(--bg2); border: none; border-left: 1px solid var(--border); border-right: 1px solid var(--border); color: var(--text); padding: 0; height: 38px; outline: none; }
+
+/* ── Generate Button ── */
+.btn-generate {
+  width: 100%; padding: 14px 20px; border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--accent) 0%, #a066ff 100%);
+  color: white; font-family: var(--font-display); font-size: 15px;
+  font-weight: 600; border: none; cursor: pointer; transition: all 0.2s;
+  letter-spacing: -0.01em; position: relative; overflow: hidden; margin-top: 8px;
+}
+.btn-generate::after { content: ''; position: absolute; inset: 0; background: white; opacity: 0; transition: opacity 0.15s; }
+.btn-generate:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(124,106,247,0.35); }
+.btn-generate:active { transform: none; }
+.btn-generate:disabled { background: var(--bg4); color: var(--text3); cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-secondary {
+  padding: 9px 16px; border-radius: var(--radius-sm); background: var(--bg3);
+  color: var(--text2); border: 1px solid var(--border); font-family: var(--font-body);
+  font-size: 13px; cursor: pointer; transition: all 0.15s;
+}
+.btn-secondary:hover { background: var(--bg4); color: var(--text); border-color: var(--border2); }
+
+/* ── Loading ── */
+.loading-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(13,13,15,0.85);
+  z-index: 100; align-items: center; justify-content: center; flex-direction: column; gap: 20px;
+  backdrop-filter: blur(4px);
+}
+.loading-overlay.show { display: flex; }
+.loading-spinner { width: 48px; height: 48px; border: 3px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-family: var(--font-display); font-size: 16px; color: var(--text2); }
+.loading-sub { font-size: 13px; color: var(--text3); margin-top: -12px; }
+
+/* ── Output ── */
+.output-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.output-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.meta-chip { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border); color: var(--text2); background: var(--bg3); }
+.meta-chip.accent { border-color: rgba(124,106,247,0.4); background: var(--accent-glow); color: var(--accent2); }
+
+.tab-bar { display: flex; gap: 2px; background: var(--bg3); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 20px; border: 1px solid var(--border); width: fit-content; }
+.tab { padding: 8px 18px; border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--text3); transition: all 0.15s; font-weight: 500; }
+.tab:hover { color: var(--text2); }
+.tab.active { background: var(--bg2); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+
+/* ── Kisi table ── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead tr { background: var(--bg3); }
+th { padding: 11px 14px; text-align: left; font-weight: 500; color: var(--text3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text2); line-height: 1.5; vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg3); }
+
+/* ── Soal cards ── */
+.soal-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; margin-bottom: 14px; }
+.soal-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.soal-num-badge { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--accent2); background: var(--accent-glow); border: 1px solid rgba(124,106,247,0.3); padding: 3px 11px; border-radius: 20px; }
+.soal-type-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; }
+.type-pg { background: var(--teal-bg); color: var(--teal); border: 1px solid rgba(45,212,191,0.2); }
+.type-pgk { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+.type-jodoh { background: rgba(139,92,246,0.12); color: #c084fc; border: 1px solid rgba(139,92,246,0.2); }
+.type-urut { background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+.type-bsal { background: var(--green-bg); color: var(--green); border: 1px solid rgba(62,207,142,0.2); }
+
+.soal-stem { font-size: 14.5px; line-height: 1.75; color: var(--text); margin-bottom: 16px; }
+.stimulus-box { background: var(--bg3); border-left: 3px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 12px 16px; margin-bottom: 16px; font-size: 13.5px; color: var(--text2); line-height: 1.7; font-style: italic; }
+
+.opsi-list { display: flex; flex-direction: column; gap: 7px; }
+.opsi-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 13.5px; line-height: 1.55; transition: all 0.1s; }
+.opsi-item.benar { background: var(--green-bg); border-color: rgba(62,207,142,0.3); color: var(--green); }
+.opsi-item.salah { color: var(--text2); }
+.opsi-label { font-weight: 600; flex-shrink: 0; width: 20px; }
+.opsi-item.benar .opsi-label { color: var(--green); }
+.kunci-indicator { margin-left: auto; font-size: 11px; flex-shrink: 0; }
+
+.show-key-btn { font-size: 12px; color: var(--text3); cursor: pointer; background: none; border: none; font-family: var(--font-body); padding: 0; margin-top: 12px; transition: color 0.1s; display: flex; align-items: center; gap: 5px; }
+.show-key-btn:hover { color: var(--accent2); }
+
+/* ── Pembahasan ── */
+.pembahasan-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; margin-bottom: 14px; }
+.p-alasan-benar { background: var(--green-bg); border: 1px solid rgba(62,207,142,0.2); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 13.5px; color: var(--text); line-height: 1.7; margin-bottom: 12px; }
+.p-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+.p-label.green { color: var(--green); }
+.p-label.red { color: var(--red); }
+.p-opsi-row { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border); color: var(--text2); line-height: 1.55; }
+.p-opsi-row:last-child { border-bottom: none; }
+.p-opsi-label { font-weight: 600; color: var(--text3); flex-shrink: 0; width: 24px; }
+
+/* ── Chips & badges ── */
+.level-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+.lvl-c4 { background: var(--teal-bg); color: var(--teal); }
+.lvl-c5 { background: var(--amber-bg); color: var(--amber); }
+.lvl-c6 { background: var(--accent-glow); color: var(--accent2); }
+
+/* ── Empty / Error states ── */
+.empty-state { text-align: center; padding: 64px 20px; color: var(--text3); }
+.empty-icon { font-size: 40px; margin-bottom: 16px; }
+.empty-title { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text2); margin-bottom: 8px; }
+.empty-desc { font-size: 14px; line-height: 1.6; max-width: 360px; margin: 0 auto; }
+
+.error-box { background: var(--red-bg); border: 1px solid rgba(248,113,113,0.25); border-radius: var(--radius); padding: 16px 20px; font-size: 14px; color: var(--red); line-height: 1.6; }
+
+/* ── History items ── */
+.history-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; cursor: pointer; transition: all 0.15s; background: var(--bg2); }
+.history-item:hover { border-color: var(--border2); background: var(--bg3); }
+.history-info { flex: 1; min-width: 0; }
+.history-title { font-size: 14px; font-weight: 500; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-meta { font-size: 12px; color: var(--text3); }
+.history-arrow { color: var(--text3); flex-shrink: 0; margin-left: 12px; }
+.history-badges { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+/* ── Divider ── */
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* ── Export bar ── */
+.export-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* ── Progress dot ── */
+.step-progress { display: flex; gap: 6px; align-items: center; }
+.step-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--bg4); transition: all 0.2s; }
+.step-dot.done { background: var(--accent); }
+.step-dot.active { background: var(--accent2); box-shadow: 0 0 8px var(--accent); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .app-layout { grid-template-columns: 1fr; }
+  .sidebar { position: fixed; left: -300px; top: 0; z-index: 50; width: 280px; transition: left 0.25s; height: 100vh; }
+  .sidebar.open { left: 0; }
+  .main { min-height: 100vh; }
+  .screen { padding: 20px 16px; }
+  .topbar { padding: 16px 20px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .bloom-grid { grid-template-columns: 1fr; }
+  .jenis-grid { grid-template-columns: 1fr; }
+  .menu-btn { display: flex !important; }
+}
+.menu-btn { display: none; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; background: var(--bg3); border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-size: 16px; }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Membuat soal HOTS...</div>
+  <div class="loading-sub" id="loading-msg">Menganalisis tujuan pembelajaran</div>
+</div>
+
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">⚡</div>
+        <div>
+          <div class="logo-text">HOTS Generator</div>
+        </div>
+      </div>
+      <div class="logo-sub">Pembuat Soal Tingkat Tinggi</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">
+        <div class="nav-label">Menu</div>
+        <div class="nav-item active" onclick="showScreen('generate')">
+          <span class="nav-icon">✦</span> Buat Soal
+        </div>
+        <div class="nav-item" onclick="showScreen('hasil')" id="nav-hasil" style="display:none">
+          <span class="nav-icon">📄</span> Hasil <span class="nav-badge" id="badge-soal">0</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('riwayat')">
+          <span class="nav-icon">🕐</span> Riwayat
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Tentang HOTS</div>
+        <div class="nav-item" onclick="showScreen('panduan')">
+          <span class="nav-icon">📖</span> Panduan Bloom
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="version-tag">HOTS Generator v1.0 · Powered by Gemini</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div>
+        <div class="page-title" id="page-title">Buat Soal HOTS</div>
+        <div class="page-sub" id="page-sub">Isi form di bawah dan klik generate</div>
+      </div>
+      <div class="topbar-actions">
+        <div id="export-actions" style="display:none" class="export-bar">
+          <button class="btn-secondary" onclick="exportTxt()">⬇ Export TXT</button>
+          <button class="btn-secondary" onclick="printPage()">🖨 Cetak</button>
+        </div>
+        <button class="menu-btn" id="menu-btn" onclick="toggleSidebar()">☰</button>
+      </div>
+    </div>
+
+    <!-- SCREEN: Generate -->
+    <div class="screen active" id="screen-generate">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-num">1</div>
+          <div><div class="card-title-text">Identitas Soal</div><div class="card-desc">Isi informasi dasar mata pelajaran</div></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Mata Pelajaran</label>
+            <input type="text" id="mapel" placeholder="cth: Biologi, IPA, Bahasa Indonesia, Matematika…" />
+          </div>
+          <div class="form-group">
+            <label>Kelas</label>
+            <select id="kelas">
+              <option value="">— Pilih kelas —</option>
+              <optgroup label="SMP/MTs"><option>VII</option><option>VIII</option><option>IX</option></optgroup>
+              <optgroup label="SMA/MA/SMK"><option>X</option><option>XI</option><option>XII</option></optgroup>
+            </select>
+          </div>
+          <div class="form-group form-full">
+            <label>Tujuan Pembelajaran (TP)</label>
+            <textarea id="tp" placeholder="Peserta didik mampu menganalisis… / Peserta didik dapat mengevaluasi… / Peserta didik dapat merancang…"></textarea>
+          </div>
+          <div class="form-group form-full">
+            <label>Materi / Topik</label>
+            <input type="text" id="materi" placeholder="cth: Sistem Pernapasan Manusia, Teks Eksposisi, Fungsi Kuadrat…" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-num">2</div>
+          <div><div class="card-title-text">Level Taksonomi Bloom</div><div class="card-desc">Pilih satu level kognitif HOTS</div></div>
+        </div>
+        <div class="bloom-grid">
+          <div class="bloom-card c4" onclick="selectBloom(this,'C4')">
+            <div class="bloom-check">✓</div>
+            <div class="bloom-icon">🔍</div>
+            <div class="bloom-level">C4 — Analisis</div>
+            <div class="bloom-kw">membandingkan · menguraikan · mengelompokkan · mengidentifikasi</div>
+          </div>
+          <div class="bloom-card c5" onclick="selectBloom(this,'C5')">
+            <div class="bloom-check">✓</div>
+            <div class="bloom-icon">⚖️</div>
+            <div class="bloom-level">C5 — Evaluasi</div>
+            <div class="bloom-kw">menilai · mengkritisi · memilih · memutuskan · memvalidasi</div>
+          </div>
+          <div class="bloom-card c6" onclick="selectBloom(this,'C6')">
+            <div class="bloom-check">✓</div>
+            <div class="bloom-icon">🛠</div>
+            <div class="bloom-level">C6 — Kreasi</div>
+            <div class="bloom-kw">merancang · menyusun · mengembangkan · mengkonstruksi</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-num">3</div>
+          <div><div class="card-title-text">Jenis Soal</div><div class="card-desc">Boleh pilih lebih dari satu</div></div>
+        </div>
+        <div class="jenis-grid">
+          <div class="jenis-item" onclick="toggleJenis(this,'pg')">
+            <div class="jenis-cb">✓</div>
+            Pilihan Ganda (5 opsi, 1 benar)
+            <span class="jenis-icon">◯</span>
+          </div>
+          <div class="jenis-item" onclick="toggleJenis(this,'pgk')">
+            <div class="jenis-cb">✓</div>
+            PG Kompleks (3 jawaban benar)
+            <span class="jenis-icon">⊡</span>
+          </div>
+          <div class="jenis-item" onclick="toggleJenis(this,'jodoh')">
+            <div class="jenis-cb">✓</div>
+            Menjodohkan
+            <span class="jenis-icon">⇄</span>
+          </div>
+          <div class="jenis-item" onclick="toggleJenis(this,'urut')">
+            <div class="jenis-cb">✓</div>
+            Mengurutkan
+            <span class="jenis-icon">↕</span>
+          </div>
+          <div class="jenis-item" onclick="toggleJenis(this,'bsal')">
+            <div class="jenis-cb">✓</div>
+            Benar–Salah (Pernyataan Analitis)
+            <span class="jenis-icon">✗</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-num">4</div>
+          <div><div class="card-title-text">Jumlah Soal</div><div class="card-desc">Maksimal 10 soal per generate</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <div class="stepper">
+            <button class="step-btn" onclick="changeNum(-1)">−</button>
+            <input type="number" class="step-val" id="num-soal" value="5" min="1" max="10" readonly />
+            <button class="step-btn" onclick="changeNum(1)">+</button>
+          </div>
+          <span style="font-size:14px;color:var(--text3)">soal akan digenerate</span>
+        </div>
+      </div>
+
+      <button class="btn-generate" id="gen-btn" onclick="doGenerate()">
+        ✦ &nbsp;Generate Soal HOTS Sekarang
+      </button>
+    </div>
+
+    <!-- SCREEN: Hasil -->
+    <div class="screen" id="screen-hasil">
+      <div class="output-header">
+        <div class="output-meta" id="output-meta"></div>
+      </div>
+      <div class="tab-bar">
+        <div class="tab active" onclick="switchTab('kisi',this)">📋 Kisi-kisi</div>
+        <div class="tab" onclick="switchTab('soal',this)">📝 Soal</div>
+        <div class="tab" onclick="switchTab('pembahasan',this)">💡 Pembahasan</div>
+      </div>
+      <div id="tab-kisi"></div>
+      <div id="tab-soal" style="display:none"></div>
+      <div id="tab-pembahasan" style="display:none"></div>
+    </div>
+
+    <!-- SCREEN: Riwayat -->
+    <div class="screen" id="screen-riwayat">
+      <div id="riwayat-list">
+        <div class="empty-state">
+          <div class="empty-icon">🕐</div>
+          <div class="empty-title">Belum ada riwayat</div>
+          <div class="empty-desc">Soal yang sudah digenerate akan muncul di sini</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN: Panduan -->
+    <div class="screen" id="screen-panduan">
+      <div class="card">
+        <div style="margin-bottom:20px">
+          <div style="font-family:var(--font-display);font-size:18px;font-weight:600;margin-bottom:6px">Taksonomi Bloom Revisi</div>
+          <div style="font-size:13px;color:var(--text3)">Panduan memilih level kognitif yang tepat untuk soal HOTS</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="padding:18px;border-radius:var(--radius);border:1px solid rgba(45,212,191,0.25);background:var(--teal-bg)">
+            <div style="font-family:var(--font-display);font-weight:600;color:var(--teal);margin-bottom:8px">C4 — Analisis</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:10px">Peserta didik memecah informasi menjadi bagian-bagian dan menentukan hubungan antar bagian tersebut.</div>
+            <div style="font-size:12px;color:var(--text3)"><b style="color:var(--teal)">Kata kerja:</b> menganalisis, membandingkan, menguraikan, mengidentifikasi, membedakan, mengelompokkan</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:4px"><b style="color:var(--teal)">Jenis soal cocok:</b> Studi kasus, analisis grafik/tabel, soal berbasis fenomena</div>
+          </div>
+          <div style="padding:18px;border-radius:var(--radius);border:1px solid rgba(245,158,11,0.25);background:var(--amber-bg)">
+            <div style="font-family:var(--font-display);font-weight:600;color:var(--amber);margin-bottom:8px">C5 — Evaluasi</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:10px">Peserta didik membuat penilaian berdasarkan kriteria dan standar tertentu.</div>
+            <div style="font-size:12px;color:var(--text3)"><b style="color:var(--amber)">Kata kerja:</b> mengevaluasi, menilai, memilih, mempertahankan, memvalidasi, mengkritisi</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:4px"><b style="color:var(--amber)">Jenis soal cocok:</b> Argumentatif, soal berbasis dilema, penilaian solusi</div>
+          </div>
+          <div style="padding:18px;border-radius:var(--radius);border:1px solid rgba(124,106,247,0.3);background:var(--accent-glow)">
+            <div style="font-family:var(--font-display);font-weight:600;color:var(--accent2);margin-bottom:8px">C6 — Kreasi</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:10px">Peserta didik menggabungkan elemen-elemen untuk membentuk sesuatu yang baru atau fungsional.</div>
+            <div style="font-size:12px;color:var(--text3)"><b style="color:var(--accent2)">Kata kerja:</b> merancang, menyusun, mengembangkan, mengkonstruksi, merumuskan, menghasilkan</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:4px"><b style="color:var(--accent2)">Jenis soal cocok:</b> Problem solving, desain solusi, soal open-ended terstruktur</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div style="font-family:var(--font-display);font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text2)">Checklist Kualitas Soal HOTS</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13.5px;color:var(--text2)">
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--green);flex-shrink:0">✓</span> Ada stimulus (teks kasus, data, skenario, grafik)</div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--green);flex-shrink:0">✓</span> Memerlukan penalaran, bukan sekadar hafalan</div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--green);flex-shrink:0">✓</span> Distraktor (opsi salah) masuk akal dan logis</div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--green);flex-shrink:0">✓</span> Jawaban benar tidak terlalu obvious</div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--red);flex-shrink:0">✗</span> Jangan tanyakan definisi langsung</div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="color:var(--red);flex-shrink:0">✗</span> Jangan pakai kata "bukan" / "kecuali" berulang</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── State ──
+let selectedBloom = null;
+let selectedJenis = new Set();
+let numSoal = 5;
+let lastResult = null;
+let riwayat = [];
+
+// ── Navigation ──
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  
+  const titles = {
+    generate: ['Buat Soal HOTS', 'Isi form dan klik generate'],
+    hasil: ['Hasil Soal', 'Kisi-kisi · Soal · Pembahasan'],
+    riwayat: ['Riwayat Generate', 'Soal yang sudah dibuat sebelumnya'],
+    panduan: ['Panduan Taksonomi Bloom', 'Referensi level kognitif HOTS']
+  };
+  document.getElementById('page-title').textContent = titles[name][0];
+  document.getElementById('page-sub').textContent = titles[name][1];
+  document.getElementById('export-actions').style.display = name === 'hasil' ? 'flex' : 'none';
+
+  const nav = document.querySelector(`.nav-item[onclick*="${name}"]`);
+  if (nav) nav.classList.add('active');
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ── Bloom & Jenis ──
+function selectBloom(el, level) {
+  document.querySelectorAll('.bloom-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedBloom = level;
+}
+function toggleJenis(el, key) {
+  el.classList.toggle('selected');
+  if (selectedJenis.has(key)) selectedJenis.delete(key);
+  else selectedJenis.add(key);
+}
+function changeNum(d) {
+  numSoal = Math.max(1, Math.min(10, numSoal + d));
+  document.getElementById('num-soal').value = numSoal;
+}
+
+// ── Validation ──
+function validate() {
+  if (!document.getElementById('mapel').value.trim()) return 'Mata pelajaran belum diisi.';
+  if (!document.getElementById('kelas').value) return 'Kelas belum dipilih.';
+  if (!document.getElementById('tp').value.trim()) return 'Tujuan Pembelajaran (TP) belum diisi.';
+  if (!document.getElementById('materi').value.trim()) return 'Materi belum diisi.';
+  if (!selectedBloom) return 'Level Bloom belum dipilih.';
+  if (selectedJenis.size === 0) return 'Pilih minimal 1 jenis soal.';
+  return null;
+}
+
+// ── Generate ──
+const loadingMsgs = [
+  'Menganalisis tujuan pembelajaran…',
+  'Merancang kisi-kisi soal…',
+  'Menyusun stimulus dan konteks…',
+  'Membuat soal berbasis kasus…',
+  'Menyusun distraktor berkualitas…',
+  'Menulis pembahasan…',
+  'Memvalidasi level HOTS…',
+];
+let loadingInterval = null;
+
+function setLoading(show) {
+  const overlay = document.getElementById('loading');
+  if (show) {
+    overlay.classList.add('show');
+    let i = 0;
+    loadingInterval = setInterval(() => {
+      document.getElementById('loading-msg').textContent = loadingMsgs[i % loadingMsgs.length];
+      i++;
+    }, 1600);
+  } else {
+    overlay.classList.remove('show');
+    clearInterval(loadingInterval);
+  }
+}
+
+function jenisMap(k) { return {pg:'Pilihan Ganda (5 opsi, 1 jawaban benar)', pgk:'PG Kompleks (5 opsi, 3 jawaban benar)', jodoh:'Menjodohkan', urut:'Mengurutkan', bsal:'Benar-Salah'}[k] || k; }
+function jenisLabel(k) { return {pg:'PG',pgk:'PG Kompleks',jodoh:'Menjodohkan',urut:'Mengurutkan',bsal:'Benar-Salah'}[k] || k; }
+function jenisClass(k) { return {pg:'type-pg',pgk:'type-pgk',jodoh:'type-jodoh',urut:'type-urut',bsal:'type-bsal'}[k] || ''; }
+
+async function doGenerate() {
+  const err = validate();
+  if (err) { alert(err); return; }
+
+  const mapel = document.getElementById('mapel').value.trim();
+  const kelas = document.getElementById('kelas').value;
+  const tp = document.getElementById('tp').value.trim();
+  const materi = document.getElementById('materi').value.trim();
+  const jenisList = [...selectedJenis].map(jenisMap).join(', ');
+
+  setLoading(true);
+  document.getElementById('gen-btn').disabled = true;
+
+  const prompt = `Kamu adalah ahli penyusunan soal HOTS (Higher-Order Thinking Skills) kurikulum Merdeka Belajar Indonesia.
+
+DATA SOAL:
+- Mata Pelajaran: ${mapel}
+- Kelas: ${kelas}
+- Tujuan Pembelajaran (TP): ${tp}
+- Materi: ${materi}
+- Level Taksonomi Bloom: ${selectedBloom}
+- Jenis Soal: ${jenisList}
+- Jumlah Soal: ${numSoal}
+
+KETENTUAN WAJIB:
+1. Semua soal WAJIB level HOTS (${selectedBloom}) — bukan soal recall atau hafalan
+2. Setiap soal wajib berbasis stimulus (teks kasus, data, skenario, atau fenomena kontekstual)
+3. Distraktor harus masuk akal secara logis, bukan jebakan murahan
+4. Kisi-kisi harus menyertakan CP (Capaian Pembelajaran) yang relevan untuk ${mapel} kelas ${kelas}
+5. Indikator soal harus spesifik dan terukur
+6. Gunakan konteks kehidupan nyata atau fenomena aktual yang relevan
+
+ATURAN FORMAT JSON:
+- Untuk PG: opsi berisi ["A. teks", "B. teks", ...], kunci berisi ["A"] (huruf saja)
+- Untuk PG Kompleks: kunci berisi 3 huruf ["A","C","E"]
+- Untuk Menjodohkan: opsi berisi ["1. konsep A","2. konsep B","A. definisi X","B. definisi Y"], kunci berisi ["1-A","2-B"] dst
+- Untuk Mengurutkan: opsi berisi langkah-langkah acak, kunci berisi urutan benar ["C","A","D","B","E"]
+- Untuk Benar-Salah: opsi berisi pernyataan-pernyataan, kunci berisi ["Benar","Salah","Benar"] dst. Setiap pernyataan berdiri sendiri
+
+Hasilkan HANYA JSON valid ini, tanpa teks lain, tanpa markdown backtick:
+{
+  "kisi": [
+    {
+      "no": 1,
+      "cp": "Capaian Pembelajaran relevan",
+      "tp": "${tp}",
+      "materi": "${materi}",
+      "kelas": "${kelas}",
+      "indikator": "Peserta didik mampu ... berdasarkan ...",
+      "level": "${selectedBloom}"
+    }
+  ],
+  "soal": [
+    {
+      "no": 1,
+      "jenis": "pg",
+      "stem": "Teks soal lengkap dengan stimulus/kasus/skenario. Soal langsung di bagian ini.",
+      "opsi": ["A. ...", "B. ...", "C. ...", "D. ...", "E. ..."],
+      "kunci": ["A"]
+    }
+  ],
+  "pembahasan": [
+    {
+      "no": 1,
+      "alasan_benar": "Penjelasan mengapa jawaban ini benar berdasarkan konsep",
+      "alasan_salah": {"B": "alasan B salah", "C": "alasan C salah", "D": "alasan D salah", "E": "alasan E salah"}
+    }
+  ]
+}`;
+
+  try {
+    const resp = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+
+    if (!resp.ok) {
+      const errData = await resp.json().catch(() => ({}));
+      throw new Error(errData.error || `Server error: ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    const raw = data.text || '';
+    const clean = raw.replace(/```json|```/g, '').trim();
+
+    let parsed;
+    try { parsed = JSON.parse(clean); }
+    catch {
+      const m = clean.match(/\{[\s\S]*\}/);
+      if (m) parsed = JSON.parse(m[0]);
+      else throw new Error('Format JSON tidak valid dari AI');
+    }
+
+    lastResult = { data: parsed, mapel, kelas, tp, materi, bloom: selectedBloom, jenis: [...selectedJenis], ts: new Date() };
+    riwayat.unshift(lastResult);
+    renderOutput(lastResult);
+    showScreen('hasil');
+    document.getElementById('nav-hasil').style.display = 'flex';
+    document.getElementById('badge-soal').textContent = (parsed.soal || []).length;
+
+  } catch(e) {
+    setLoading(false);
+    document.getElementById('gen-btn').disabled = false;
+    showScreen('hasil');
+    document.getElementById('nav-hasil').style.display = 'flex';
+    document.getElementById('tab-kisi').innerHTML = `<div class="error-box">⚠ Gagal generate: ${e.message}. Periksa koneksi dan coba lagi.</div>`;
+    document.getElementById('tab-soal').innerHTML = '';
+    document.getElementById('tab-pembahasan').innerHTML = '';
+    return;
+  }
+
+  setLoading(false);
+  document.getElementById('gen-btn').disabled = false;
+}
+
+// ── Render Output ──
+function renderOutput(r) {
+  const { data, mapel, kelas, bloom } = r;
+  const levelClass = { C4: 'lvl-c4', C5: 'lvl-c5', C6: 'lvl-c6' }[bloom] || 'lvl-c4';
+
+  document.getElementById('output-meta').innerHTML = `
+    <span class="meta-chip accent">${mapel}</span>
+    <span class="meta-chip">Kelas ${kelas}</span>
+    <span class="meta-chip"><span class="level-badge ${levelClass}">${bloom}</span></span>
+    <span class="meta-chip">${(data.soal||[]).length} soal</span>
+  `;
+
+  renderKisi(data.kisi, kelas, bloom);
+  renderSoal(data.soal);
+  renderPembahasan(data.pembahasan, data.soal);
+
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===0));
+  ['kisi','soal','pembahasan'].forEach((n,i) => {
+    document.getElementById('tab-'+n).style.display = i===0?'block':'none';
+  });
+}
+
+function renderKisi(kisi, kelas, bloom) {
+  const lc = { C4: 'lvl-c4', C5: 'lvl-c5', C6: 'lvl-c6' };
+  let html = `<div class="table-wrap"><table>
+    <thead><tr>
+      <th>No</th><th>CP</th><th>TP</th><th>Materi</th><th>Kelas</th><th>Indikator</th><th>Level</th>
+    </tr></thead><tbody>`;
+  (kisi||[]).forEach(r => {
+    html += `<tr>
+      <td style="color:var(--text3);font-weight:600">${r.no}</td>
+      <td>${r.cp||'-'}</td>
+      <td>${r.tp||'-'}</td>
+      <td>${r.materi||'-'}</td>
+      <td>${r.kelas||kelas}</td>
+      <td>${r.indikator||'-'}</td>
+      <td><span class="level-badge ${lc[r.level]||'lvl-c4'}">${r.level}</span></td>
+    </tr>`;
+  });
+  html += '</tbody></table></div>';
+  document.getElementById('tab-kisi').innerHTML = html;
+}
+
+function renderSoal(soal) {
+  if (!soal || !soal.length) {
+    document.getElementById('tab-soal').innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-title">Tidak ada soal</div></div>';
+    return;
+  }
+  let html = '';
+  soal.forEach(s => {
+    const isBenarSalah = s.jenis === 'bsal';
+    const isUrut = s.jenis === 'urut';
+    const isPgk = s.jenis === 'pgk';
+
+    html += `<div class="soal-card">
+      <div class="soal-meta">
+        <span class="soal-num-badge">Soal ${s.no}</span>
+        <span class="soal-type-badge ${jenisClass(s.jenis)}">${jenisLabel(s.jenis)}</span>
+      </div>
+      <div class="soal-stem">${s.stem}</div>`;
+
+    if (s.opsi && s.opsi.length) {
+      if (isBenarSalah) {
+        html += `<div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:500">Tentukan Benar atau Salah setiap pernyataan:</div><div style="display:flex;flex-direction:column;gap:6px">`;
+        s.opsi.forEach((o,i) => {
+          html += `<div class="opsi-item" style="justify-content:space-between">
+            <span style="flex:1">${o}</span>
+            <span style="flex-shrink:0;margin-left:12px;font-size:12px;color:var(--text3);font-style:italic">(B / S)</span>
+          </div>`;
+        });
+        html += `</div>`;
+      } else if (isUrut) {
+        html += `<div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:500">Urutkan langkah berikut dengan benar:</div><div class="opsi-list">`;
+        s.opsi.forEach((o,i) => {
+          const ltr = String.fromCharCode(65+i);
+          html += `<div class="opsi-item"><span class="opsi-label">${ltr}.</span><span>${o.replace(/^[A-Z]\.\s*/,'')}</span></div>`;
+        });
+        html += `</div>`;
+      } else {
+        if (isPgk) html += `<div style="font-size:12px;color:var(--amber);margin-bottom:8px;font-style:italic">Pilih 3 jawaban yang paling tepat</div>`;
+        html += `<div class="opsi-list" id="opsi-${s.no}" style="filter:blur(4px);pointer-events:none;user-select:none;transition:filter 0.3s">`;
+        s.opsi.forEach((o,i) => {
+          const ltr = String.fromCharCode(65+i);
+          const isBenar = (s.kunci||[]).includes(ltr);
+          html += `<div class="opsi-item ${isBenar?'benar':'salah'}">
+            <span class="opsi-label">${ltr}.</span>
+            <span style="flex:1">${o.replace(/^[A-Z]\.\s*/,'')}</span>
+            ${isBenar?'<span class="kunci-indicator" style="color:var(--green)">✓ Benar</span>':''}
+          </div>`;
+        });
+        html += `</div>
+        <button class="show-key-btn" onclick="showKey(${s.no}, this)">👁 Tampilkan kunci jawaban</button>`;
+      }
+    }
+    html += `</div>`;
+  });
+  document.getElementById('tab-soal').innerHTML = html;
+}
+
+function showKey(no, btn) {
+  const el = document.getElementById('opsi-'+no);
+  if (el) { el.style.filter = 'none'; el.style.pointerEvents = 'auto'; }
+  btn.style.display = 'none';
+}
+
+function renderPembahasan(pembahasan, soal) {
+  if (!pembahasan || !pembahasan.length) {
+    document.getElementById('tab-pembahasan').innerHTML = '<div class="empty-state"><div class="empty-icon">💡</div><div class="empty-title">Tidak ada pembahasan</div></div>';
+    return;
+  }
+  let html = '';
+  pembahasan.forEach((p,idx) => {
+    const s = (soal||[])[idx];
+    html += `<div class="pembahasan-card">
+      <div class="soal-meta" style="margin-bottom:12px">
+        <span class="soal-num-badge">Soal ${p.no}</span>
+        ${s ? `<span class="soal-type-badge ${jenisClass(s.jenis)}">${jenisLabel(s.jenis)}</span>` : ''}
+      </div>
+      ${s ? `<div style="font-size:13px;color:var(--text3);margin-bottom:14px;line-height:1.6;font-style:italic">${s.stem?.substring(0,160)}…</div>` : ''}
+      <div class="p-label green">Jawaban Benar & Alasan</div>
+      <div class="p-alasan-benar">${p.alasan_benar||'-'}</div>`;
+
+    if (p.alasan_salah && Object.keys(p.alasan_salah).length) {
+      html += `<div class="p-label red" style="margin-bottom:8px">Mengapa opsi lain salah?</div>
+        <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:4px 14px">`;
+      Object.entries(p.alasan_salah).forEach(([k,v]) => {
+        html += `<div class="p-opsi-row"><span class="p-opsi-label">${k}.</span><span>${v}</span></div>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+  });
+  document.getElementById('tab-pembahasan').innerHTML = html;
+}
+
+// ── Tabs ──
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['kisi','soal','pembahasan'].forEach(n => {
+    document.getElementById('tab-'+n).style.display = n===name?'block':'none';
+  });
+}
+
+// ── Riwayat ──
+function renderRiwayat() {
+  const el = document.getElementById('riwayat-list');
+  if (!riwayat.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🕐</div><div class="empty-title">Belum ada riwayat</div><div class="empty-desc">Soal yang sudah digenerate akan muncul di sini</div></div>`;
+    return;
+  }
+  el.innerHTML = riwayat.map((r,i) => `
+    <div class="history-item" onclick="loadRiwayat(${i})">
+      <div class="history-info">
+        <div class="history-title">${r.mapel} — Kelas ${r.kelas}</div>
+        <div class="history-meta">${r.materi} · ${r.ts.toLocaleString('id-ID')}</div>
+        <div class="history-badges">
+          <span class="meta-chip" style="font-size:11px">${r.bloom}</span>
+          <span class="meta-chip" style="font-size:11px">${(r.data.soal||[]).length} soal</span>
+        </div>
+      </div>
+      <span class="history-arrow">›</span>
+    </div>`).join('');
+}
+
+function loadRiwayat(i) {
+  lastResult = riwayat[i];
+  renderOutput(lastResult);
+  showScreen('hasil');
+}
+
+// ── Export ──
+function exportTxt() {
+  if (!lastResult) return;
+  const { data, mapel, kelas, bloom } = lastResult;
+  let txt = `GENERATOR SOAL HOTS\n${mapel} · Kelas ${kelas} · ${bloom}\n${'='.repeat(50)}\n\n`;
+  txt += 'KISI-KISI SOAL\n' + '-'.repeat(30) + '\n';
+  (data.kisi||[]).forEach(k => {
+    txt += `No ${k.no}\nCP: ${k.cp}\nTP: ${k.tp}\nIndikator: ${k.indikator}\nLevel: ${k.level}\n\n`;
+  });
+  txt += '\nSOAL\n' + '-'.repeat(30) + '\n';
+  (data.soal||[]).forEach(s => {
+    txt += `\n${s.no}. [${jenisLabel(s.jenis)}]\n${s.stem}\n`;
+    (s.opsi||[]).forEach(o => txt += `   ${o}\n`);
+    txt += `   Kunci: ${(s.kunci||[]).join(', ')}\n`;
+  });
+  txt += '\nPEMBAHASAN\n' + '-'.repeat(30) + '\n';
+  (data.pembahasan||[]).forEach(p => {
+    txt += `\nSoal ${p.no}:\n${p.alasan_benar}\n`;
+    if (p.alasan_salah) Object.entries(p.alasan_salah).forEach(([k,v]) => txt += `${k}: ${v}\n`);
+  });
+
+  const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `soal-hots-${mapel.replace(/\s+/g,'-').toLowerCase()}.txt`;
+  a.click();
+}
+
+function printPage() {
+  window.print();
+}
+
+// ── Override showScreen to update riwayat ──
+const _showScreen = showScreen;
+window.showScreen = function(name) {
+  if (name === 'riwayat') renderRiwayat();
+  _showScreen(name);
+};
+</script>
+
+<style>
+@media print {
+  .sidebar, .topbar, .tab-bar, .show-key-btn, .btn-generate, .export-bar, #screen-generate, #screen-riwayat, #screen-panduan { display: none !important; }
+  .screen#screen-hasil { display: block !important; padding: 0; }
+  body { background: white; color: black; }
+  .soal-card, .pembahasan-card, .card { break-inside: avoid; border: 1px solid #ddd; margin-bottom: 10px; }
+  #tab-soal, #tab-pembahasan, #tab-kisi { display: block !important; }
+  .opsi-list { filter: none !important; }
+}
+</style>
+</body>
+</html>

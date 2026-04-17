@@ -1,0 +1,8 @@
+{
+  "name": "hots-generator",
+  "version": "1.0.0",
+  "description": "Generator Soal HOTS berbasis Gemini AI",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
