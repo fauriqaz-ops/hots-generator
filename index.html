@@ -406,6 +406,10 @@ tr:hover td { background: var(--bg3); }
             <label>Materi / Topik</label>
             <input type="text" id="materi" placeholder="cth: Sistem Pernapasan Manusia, Teks Eksposisi, Fungsi Kuadrat…" />
           </div>
+          <div class="form-group form-full">
+            <label>Indikator Soal</label>
+            <textarea id="indikator" placeholder="cth: Peserta didik mampu menganalisis hubungan antara… / Peserta didik dapat mengevaluasi dampak dari…"></textarea>
+          </div>
         </div>
       </div>
 
@@ -472,13 +476,13 @@ tr:hover td { background: var(--bg3); }
 
       <div class="card">
         <div class="card-header">
-          <div class="card-num">4</div>
-          <div><div class="card-title-text">Jumlah Soal</div><div class="card-desc">Maksimal 10 soal per generate</div></div>
+          <div class="card-num">5</div>
+          <div><div class="card-title-text">Jumlah Soal</div><div class="card-desc">Maksimal 5 soal per generate</div></div>
         </div>
         <div style="display:flex;align-items:center;gap:16px">
           <div class="stepper">
             <button class="step-btn" onclick="changeNum(-1)">−</button>
-            <input type="number" class="step-val" id="num-soal" value="5" min="1" max="10" readonly />
+            <input type="number" class="step-val" id="num-soal" value="3" min="1" max="5" readonly />
             <button class="step-btn" onclick="changeNum(1)">+</button>
           </div>
           <span style="font-size:14px;color:var(--text3)">soal akan digenerate</span>
@@ -495,14 +499,7 @@ tr:hover td { background: var(--bg3); }
       <div class="output-header">
         <div class="output-meta" id="output-meta"></div>
       </div>
-      <div class="tab-bar">
-        <div class="tab active" onclick="switchTab('kisi',this)">📋 Kisi-kisi</div>
-        <div class="tab" onclick="switchTab('soal',this)">📝 Soal</div>
-        <div class="tab" onclick="switchTab('pembahasan',this)">💡 Pembahasan</div>
-      </div>
-      <div id="tab-kisi"></div>
-      <div id="tab-soal" style="display:none"></div>
-      <div id="tab-pembahasan" style="display:none"></div>
+      <div id="tab-soal"></div>
     </div>
 
     <!-- SCREEN: Riwayat -->
@@ -606,7 +603,7 @@ function toggleJenis(el, key) {
   else selectedJenis.add(key);
 }
 function changeNum(d) {
-  numSoal = Math.max(1, Math.min(10, numSoal + d));
+  numSoal = Math.max(1, Math.min(5, numSoal + d));
   document.getElementById('num-soal').value = numSoal;
 }
 
@@ -616,6 +613,7 @@ function validate() {
   if (!document.getElementById('kelas').value) return 'Kelas belum dipilih.';
   if (!document.getElementById('tp').value.trim()) return 'Tujuan Pembelajaran (TP) belum diisi.';
   if (!document.getElementById('materi').value.trim()) return 'Materi belum diisi.';
+  if (!document.getElementById('indikator').value.trim()) return 'Indikator soal belum diisi.';
   if (!selectedBloom) return 'Level Bloom belum dipilih.';
   if (selectedJenis.size === 0) return 'Pilih minimal 1 jenis soal.';
   return null;
@@ -660,67 +658,28 @@ async function doGenerate() {
   const kelas = document.getElementById('kelas').value;
   const tp = document.getElementById('tp').value.trim();
   const materi = document.getElementById('materi').value.trim();
+  const indikator = document.getElementById('indikator').value.trim();
   const jenisList = [...selectedJenis].map(jenisMap).join(', ');
 
   setLoading(true);
   document.getElementById('gen-btn').disabled = true;
 
-  const prompt = `Kamu adalah ahli penyusunan soal HOTS (Higher-Order Thinking Skills) kurikulum Merdeka Belajar Indonesia.
+  const prompt = `Buat ${numSoal} soal HOTS level ${selectedBloom} untuk mata pelajaran ${mapel} kelas ${kelas}.
+Materi: ${materi}
+Indikator: ${indikator}
+Jenis soal: ${jenisList}
 
-DATA SOAL:
-- Mata Pelajaran: ${mapel}
-- Kelas: ${kelas}
-- Tujuan Pembelajaran (TP): ${tp}
-- Materi: ${materi}
-- Level Taksonomi Bloom: ${selectedBloom}
-- Jenis Soal: ${jenisList}
-- Jumlah Soal: ${numSoal}
+Aturan:
+- Setiap soal WAJIB ada stimulus (kasus/skenario/data nyata)
+- Distraktor harus logis
+- Format PG: 5 opsi ["A. teks"...], kunci ["A"]
+- Format PG Kompleks: 5 opsi, kunci 3 huruf ["A","C","E"]
+- Format Menjodohkan: opsi ["1. konsep","A. definisi"...], kunci ["1-A","2-B"]
+- Format Mengurutkan: opsi langkah acak, kunci urutan benar ["C","A","D","B"]
+- Format Benar-Salah: opsi pernyataan, kunci ["Benar","Salah","Benar"]
 
-KETENTUAN WAJIB:
-1. Semua soal WAJIB level HOTS (${selectedBloom}) — bukan soal recall atau hafalan
-2. Setiap soal wajib berbasis stimulus (teks kasus, data, skenario, atau fenomena kontekstual)
-3. Distraktor harus masuk akal secara logis, bukan jebakan murahan
-4. Kisi-kisi harus menyertakan CP (Capaian Pembelajaran) yang relevan untuk ${mapel} kelas ${kelas}
-5. Indikator soal harus spesifik dan terukur
-6. Gunakan konteks kehidupan nyata atau fenomena aktual yang relevan
-
-ATURAN FORMAT JSON:
-- Untuk PG: opsi berisi ["A. teks", "B. teks", ...], kunci berisi ["A"] (huruf saja)
-- Untuk PG Kompleks: kunci berisi 3 huruf ["A","C","E"]
-- Untuk Menjodohkan: opsi berisi ["1. konsep A","2. konsep B","A. definisi X","B. definisi Y"], kunci berisi ["1-A","2-B"] dst
-- Untuk Mengurutkan: opsi berisi langkah-langkah acak, kunci berisi urutan benar ["C","A","D","B","E"]
-- Untuk Benar-Salah: opsi berisi pernyataan-pernyataan, kunci berisi ["Benar","Salah","Benar"] dst. Setiap pernyataan berdiri sendiri
-
-Hasilkan HANYA JSON valid ini, tanpa teks lain, tanpa markdown backtick:
-{
-  "kisi": [
-    {
-      "no": 1,
-      "cp": "Capaian Pembelajaran relevan",
-      "tp": "${tp}",
-      "materi": "${materi}",
-      "kelas": "${kelas}",
-      "indikator": "Peserta didik mampu ... berdasarkan ...",
-      "level": "${selectedBloom}"
-    }
-  ],
-  "soal": [
-    {
-      "no": 1,
-      "jenis": "pg",
-      "stem": "Teks soal lengkap dengan stimulus/kasus/skenario. Soal langsung di bagian ini.",
-      "opsi": ["A. ...", "B. ...", "C. ...", "D. ...", "E. ..."],
-      "kunci": ["A"]
-    }
-  ],
-  "pembahasan": [
-    {
-      "no": 1,
-      "alasan_benar": "Penjelasan mengapa jawaban ini benar berdasarkan konsep",
-      "alasan_salah": {"B": "alasan B salah", "C": "alasan C salah", "D": "alasan D salah", "E": "alasan E salah"}
-    }
-  ]
-}`;
+Balas HANYA JSON ini, tanpa teks lain:
+{"soal":[{"no":1,"indikator":"indikator spesifik soal ini","jenis":"pg","stem":"teks soal + stimulus","opsi":["A. ...","B. ...","C. ...","D. ...","E. ..."],"kunci":["A"]}]}`;
 
   try {
     const resp = await fetch('/api/generate', {
@@ -747,7 +706,7 @@ Hasilkan HANYA JSON valid ini, tanpa teks lain, tanpa markdown backtick:
       else throw new Error('Format JSON tidak valid dari AI');
     }
 
-    lastResult = { data: parsed, mapel, kelas, tp, materi, bloom: selectedBloom, jenis: [...selectedJenis], ts: new Date() };
+    lastResult = { data: parsed, mapel, kelas, tp, materi, indikator, bloom: selectedBloom, jenis: [...selectedJenis], ts: new Date() };
     riwayat.unshift(lastResult);
     renderOutput(lastResult);
     showScreen('hasil');
@@ -759,9 +718,7 @@ Hasilkan HANYA JSON valid ini, tanpa teks lain, tanpa markdown backtick:
     document.getElementById('gen-btn').disabled = false;
     showScreen('hasil');
     document.getElementById('nav-hasil').style.display = 'flex';
-    document.getElementById('tab-kisi').innerHTML = `<div class="error-box">⚠ Gagal generate: ${e.message}. Periksa koneksi dan coba lagi.</div>`;
-    document.getElementById('tab-soal').innerHTML = '';
-    document.getElementById('tab-pembahasan').innerHTML = '';
+    document.getElementById('tab-soal').innerHTML = `<div class="error-box">⚠ Gagal generate: ${e.message}. Periksa koneksi dan coba lagi.</div>`;
     return;
   }
 
@@ -781,14 +738,7 @@ function renderOutput(r) {
     <span class="meta-chip">${(data.soal||[]).length} soal</span>
   `;
 
-  renderKisi(data.kisi, kelas, bloom);
   renderSoal(data.soal);
-  renderPembahasan(data.pembahasan, data.soal);
-
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===0));
-  ['kisi','soal','pembahasan'].forEach((n,i) => {
-    document.getElementById('tab-'+n).style.display = i===0?'block':'none';
-  });
 }
 
 function renderKisi(kisi, kelas, bloom) {
@@ -828,6 +778,7 @@ function renderSoal(soal) {
         <span class="soal-num-badge">Soal ${s.no}</span>
         <span class="soal-type-badge ${jenisClass(s.jenis)}">${jenisLabel(s.jenis)}</span>
       </div>
+      ${s.indikator ? `<div style="font-size:12px;color:var(--text3);margin-bottom:12px;padding:8px 12px;background:var(--bg3);border-radius:var(--radius-sm);border-left:3px solid var(--accent)"><span style="font-weight:600;color:var(--accent2)">Indikator:</span> ${s.indikator}</div>` : ''}
       <div class="soal-stem">${s.stem}</div>`;
 
     if (s.opsi && s.opsi.length) {
@@ -906,11 +857,7 @@ function renderPembahasan(pembahasan, soal) {
 
 // ── Tabs ──
 function switchTab(name, el) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  ['kisi','soal','pembahasan'].forEach(n => {
-    document.getElementById('tab-'+n).style.display = n===name?'block':'none';
-  });
+  // simplified - only soal tab now
 }
 
 // ── Riwayat ──
@@ -976,6 +923,9 @@ const _showScreen = showScreen;
 window.showScreen = function(name) {
   if (name === 'riwayat') renderRiwayat();
   _showScreen(name);
+  if (name === 'hasil') {
+    document.getElementById('export-actions').style.display = 'flex';
+  }
 };
 </script>
 
