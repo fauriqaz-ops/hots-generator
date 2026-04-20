@@ -23,7 +23,7 @@ export default async function handler(req, res) {
         'X-Title': 'HOTS Generator'
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.3-70b-instruct:free',
+        model: 'openai/gpt-oss-120b:free',
         max_tokens: 4096,
         temperature: 0.7,
         messages: [
