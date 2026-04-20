@@ -3,9 +3,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY;
-  if (!TOGETHER_API_KEY) {
-    return res.status(500).json({ error: 'TOGETHER_API_KEY belum diset di environment variables Vercel.' });
+  const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+  if (!OPENROUTER_API_KEY) {
+    return res.status(500).json({ error: 'OPENROUTER_API_KEY belum diset di environment variables Vercel.' });
   }
 
   const { prompt } = req.body;
@@ -14,14 +14,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const togetherRes = await fetch('https://api.together.xyz/v1/chat/completions', {
+    const openrouterRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${TOGETHER_API_KEY}`
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'HTTP-Referer': 'https://hots-generator.vercel.app',
+        'X-Title': 'HOTS Generator'
       },
       body: JSON.stringify({
-        model: 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
+        model: 'meta-llama/llama-3.3-70b-instruct:free',
         max_tokens: 4096,
         temperature: 0.7,
         messages: [
@@ -37,14 +39,14 @@ export default async function handler(req, res) {
       })
     });
 
-    if (!togetherRes.ok) {
-      const errData = await togetherRes.json().catch(() => ({}));
-      const msg = errData?.error?.message || `Together AI error: ${togetherRes.status}`;
+    if (!openrouterRes.ok) {
+      const errData = await openrouterRes.json().catch(() => ({}));
+      const msg = errData?.error?.message || `OpenRouter error: ${openrouterRes.status}`;
       return res.status(502).json({ error: msg });
     }
 
-    const togetherData = await togetherRes.json();
-    const text = togetherData?.choices?.[0]?.message?.content || '';
+    const openrouterData = await openrouterRes.json();
+    const text = openrouterData?.choices?.[0]?.message?.content || '';
 
     if (!text) {
       return res.status(502).json({ error: 'Model tidak menghasilkan output. Coba lagi.' });
