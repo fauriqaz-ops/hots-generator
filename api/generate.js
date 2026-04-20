@@ -3,9 +3,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  if (!GEMINI_API_KEY) {
-    return res.status(500).json({ error: 'GEMINI_API_KEY belum diset di environment variables Vercel.' });
+  const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY;
+  if (!TOGETHER_API_KEY) {
+    return res.status(500).json({ error: 'TOGETHER_API_KEY belum diset di environment variables Vercel.' });
   }
 
   const { prompt } = req.body;
@@ -14,32 +14,40 @@ export default async function handler(req, res) {
   }
 
   try {
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            maxOutputTokens: 4096,
-            temperature: 0.7,
+    const togetherRes = await fetch('https://api.together.xyz/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${TOGETHER_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
+        max_tokens: 4096,
+        temperature: 0.7,
+        messages: [
+          {
+            role: 'system',
+            content: 'Kamu adalah ahli penyusunan soal HOTS kurikulum Merdeka Belajar Indonesia. Selalu balas HANYA dengan JSON valid, tanpa teks tambahan, tanpa markdown backtick.'
+          },
+          {
+            role: 'user',
+            content: prompt
           }
-        })
-      }
-    );
+        ]
+      })
+    });
 
-    if (!geminiRes.ok) {
-      const errData = await geminiRes.json().catch(() => ({}));
-      const msg = errData?.error?.message || `Gemini API error: ${geminiRes.status}`;
+    if (!togetherRes.ok) {
+      const errData = await togetherRes.json().catch(() => ({}));
+      const msg = errData?.error?.message || `Together AI error: ${togetherRes.status}`;
       return res.status(502).json({ error: msg });
     }
 
-    const geminiData = await geminiRes.json();
-    const text = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const togetherData = await togetherRes.json();
+    const text = togetherData?.choices?.[0]?.message?.content || '';
 
     if (!text) {
-      return res.status(502).json({ error: 'Gemini tidak menghasilkan output. Coba lagi.' });
+      return res.status(502).json({ error: 'Model tidak menghasilkan output. Coba lagi.' });
     }
 
     return res.status(200).json({ text });
